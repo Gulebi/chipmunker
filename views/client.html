@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="/static/client.css" />
+        <title>Chipmunker</title>
+    </head>
+    <body>
+        <div class="container">
+            <div class="main-block">
+                <h3 id="title">Chipmunker</h3>
+
+                <button id="file-input-btn" class="btn" onclick="document.getElementById('file-input').click()">
+                    Add File
+                </button>
+                <p id="file-name-text">No File Selected</p>
+                <input type="file" id="file-input" accept="audio/*" onchange="showFileName()" />
+                <select id="effect-select">
+                    <option class="effect-option" value="chipmunk">Chipmunk</option>
+                </select>
+                <button id="submit-btn" class="btn" onclick="sendFile()">Submit</button>
+
+                <p id="copyright-text">© 2022 Gulebi</p>
+            </div>
+            <div class="error-block"><h3 id="error-text">Error Text</h3></div>
+        </div>
+        <script src="/static/client.js"></script>
+    </body>
+</html>

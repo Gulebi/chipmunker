@@ -1,0 +1,11 @@
+{
+    "editor.formatOnSave": true,
+    "workbench.iconTheme": "vscode-icons",
+    "cSpell.language": "en,ru",
+    "prettier.requireConfig": true,
+    "discord.removeDetails": true,
+    "discord.removeLowerDetails": true,
+    "discord.removeRemoteRepository": true,
+    "discord.removeTimestamp": true,
+    "cSpell.words": ["Chipmunker", "Gulebi"]
+}
