@@ -1,0 +1,3 @@
+### GET By link
+
+GET http://localhost:3000/api/link/?url=https://cdn.discordapp.com/attachments/785374547980713984/1058793725926576239/0486af62edb6f9db.m4a

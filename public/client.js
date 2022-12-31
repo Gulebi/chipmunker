@@ -30,7 +30,7 @@ async function sendFile() {
         const payload = new FormData();
         payload.append("audio", inputFile);
 
-        const res = await fetch(BASE_URL, {
+        const res = await fetch(BASE_URL + "/form", {
             method: "POST",
             body: payload,
         });
