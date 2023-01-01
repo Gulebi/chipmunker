@@ -101,27 +101,25 @@ router.get("/link/video", async (req, res) => {
         const response = await fetch(url);
         const buffer = await response.arrayBuffer();
 
-        fs.writeFileSync(inputPath, Buffer.from(buffer));
+        // fs.writeFileSync(inputPath, Buffer.from(buffer));
 
+        // prettier-ignore
         const ffmpeg = spawn(pathToFFmpeg, [
-            "-loop",
-            "1",
-            "-i",
-            imagePath,
-            "-i",
-            inputPath,
-            "-af",
-            "atempo=3/4,asetrate=44100*4/3",
-            "-c:v",
-            "libx264",
-            "-c:a",
-            "aac",
+            "-loop", "1",
+            "-i", imagePath,
+            "-i", "-",
+            "-af", "atempo=3/4,asetrate=44100*4/3",
+            "-c:v", "libx264",
+            "-c:a", "aac",
             "-shortest",
             outputPath,
         ]);
 
+        ffmpeg.stdin.write(Buffer.from(buffer));
+        ffmpeg.stdin.end();
+
         ffmpeg.on("close", () => {
-            fs.unlinkSync(inputPath);
+            // fs.unlinkSync(inputPath);
 
             res.sendFile(outputPath, (err) => {
                 if (err) {
@@ -134,7 +132,7 @@ router.get("/link/video", async (req, res) => {
         });
     } catch (err) {
         console.error(err);
-        // for (let file of fs.readdirSync(TEMP_FILE_PATH)) fs.unlinkSync(file);
+        for (let file of fs.readdirSync(TEMP_FILE_PATH)) fs.unlinkSync(file);
         res.sendStatus(500);
     }
 });
