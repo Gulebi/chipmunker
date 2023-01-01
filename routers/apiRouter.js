@@ -93,15 +93,14 @@ router.get("/link/video", async (req, res) => {
     try {
         const url = req.query.url;
 
-        const fileName = url.split("/").at(-1);
+        const fileName = url.split("/").at(-1).split(".").slice(0, -1).join(".");
         const imagePath = PUBLIC_PATH + "/image.png";
-        const inputPath = TEMP_FILE_PATH + `/input-${fileName}`;
-        const outputPath = TEMP_FILE_PATH + `/output-${fileName}.mp4`;
 
         const response = await fetch(url);
         const buffer = await response.arrayBuffer();
 
-        // fs.writeFileSync(inputPath, Buffer.from(buffer));
+        const inputBuffer = Buffer.from(buffer);
+        let outputBuffer = Buffer.alloc(0);
 
         // prettier-ignore
         const ffmpeg = spawn(pathToFFmpeg, [
@@ -112,23 +111,21 @@ router.get("/link/video", async (req, res) => {
             "-c:v", "libx264",
             "-c:a", "aac",
             "-shortest",
-            outputPath,
+            '-f', 'flv',
+            "-",
         ]);
 
-        ffmpeg.stdin.write(Buffer.from(buffer));
+        ffmpeg.stdin.write(inputBuffer);
         ffmpeg.stdin.end();
 
-        ffmpeg.on("close", () => {
-            // fs.unlinkSync(inputPath);
+        ffmpeg.stdout.on("data", (data) => {
+            outputBuffer = Buffer.concat([outputBuffer, data]);
+        });
 
-            res.sendFile(outputPath, (err) => {
-                if (err) {
-                    console.error(err);
-                    res.sendStatus(500);
-                } else {
-                    fs.unlinkSync(outputPath);
-                }
-            });
+        ffmpeg.on("close", () => {
+            res.set("Content-Type", "video/mp4");
+            res.set("Content-Disposition", `attachment; filename="${fileName}.mp4"`);
+            res.send(outputBuffer);
         });
     } catch (err) {
         console.error(err);
