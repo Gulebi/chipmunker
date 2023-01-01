@@ -27,6 +27,8 @@ async function sendFile() {
     if (files.length > 0) {
         const inputFile = files[0];
 
+        const fileName = `output-${inputFile.name}`;
+
         const payload = new FormData();
         payload.append("audio", inputFile);
 
@@ -41,7 +43,7 @@ async function sendFile() {
             let url = window.URL.createObjectURL(blob);
             let a = document.createElement("a");
             a.href = url;
-            a.download = "output";
+            a.download = fileName;
             document.body.appendChild(a);
             a.click();
             a.remove();
