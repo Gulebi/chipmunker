@@ -7,6 +7,10 @@ const errorText = document.querySelector("#error-text");
 
 const BASE_URL = "http://localhost:3000/api";
 
+const capitalize = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+};
+
 function showFileName() {
     const file = fileInput.files[0];
 
@@ -30,6 +34,7 @@ async function sendFile() {
         const fileName = `output-${inputFile.name}`;
 
         const payload = new FormData();
+        payload.append("effect", effectSelect.value);
         payload.append("audio", inputFile);
 
         const res = await fetch(BASE_URL + "/form", {
@@ -54,3 +59,18 @@ async function sendFile() {
         showError("Add File!");
     }
 }
+
+async function loadEffects() {
+    const res = await fetch(BASE_URL + "/effects", {
+        method: "GET",
+    });
+
+    const data = await res.json();
+
+    effectSelect.innerHTML = "";
+    for (let effect of data) {
+        effectSelect.innerHTML += `<option class="effect-option" value="${effect}">${capitalize(effect)}</option>`;
+    }
+}
+
+loadEffects();

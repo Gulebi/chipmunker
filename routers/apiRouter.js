@@ -4,7 +4,7 @@ const multer = require("multer");
 const express = require("express");
 const router = express.Router();
 
-const { PUBLIC_PATH } = require("../utils");
+const { EFFECTS_ARRAY, PUBLIC_PATH, urlValidator } = require("../utils");
 
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -13,13 +13,18 @@ const upload = multer({
 
 router.post("/form", upload.single("audio"), async (req, res) => {
     try {
+        const { effect } = req.body;
+
+        const effectName = effect || "chipmunk";
+        const effectString = EFFECTS_ARRAY.find((el) => el.name === effectName).string;
+
         const file = req.file;
         const inputBuffer = Buffer.from(file.buffer);
 
         // prettier-ignore
         const ffmpeg = spawn(pathToFFmpeg, [
             "-i", "-",
-            "-af", "atempo=3/4,asetrate=44100*4/3",
+            "-af", effectString,
             "-f", "mp3",
             "-",
         ]);
@@ -34,13 +39,19 @@ router.post("/form", upload.single("audio"), async (req, res) => {
 
 router.get("/link", async (req, res) => {
     try {
-        const url = req.query.url;
+        const { effect, url } = req.query;
+
+        if (!urlValidator(url)) return res.sendStatus(400);
+
+        const effectName = effect || "chipmunk";
+        const effectString = EFFECTS_ARRAY.find((el) => el.name === effectName).string;
+
         const fileName = `output-${url.split("/").at(-1)}`;
 
         // prettier-ignore
         const ffmpeg = spawn(pathToFFmpeg, [
             "-i", url,
-            "-af", "atempo=3/4,asetrate=44100*4/3",
+            "-af", effectString,
             "-f", "mp3",
             "-",
         ]);
@@ -55,7 +66,13 @@ router.get("/link", async (req, res) => {
 
 router.get("/link/video", async (req, res) => {
     try {
-        const url = req.query.url;
+        const { effect, url } = req.query;
+
+        if (!urlValidator(url)) return res.sendStatus(400);
+
+        const effectName = effect || "chipmunk";
+        const effectString = EFFECTS_ARRAY.find((el) => el.name === effectName).string;
+
         const fileName = `output-${url.split("/").at(-1).split(".").slice(0, -1).join(".")}.mp4`;
         const imagePath = PUBLIC_PATH + "/image.png";
 
@@ -64,7 +81,7 @@ router.get("/link/video", async (req, res) => {
             "-loop", "1",
             "-i", imagePath,
             "-i", url,
-            "-af", "atempo=3/4,asetrate=44100*4/3",
+            "-af", effectString,
             "-c:v", "libx264",
             "-c:a", "aac",
             "-shortest",
@@ -74,6 +91,15 @@ router.get("/link/video", async (req, res) => {
 
         res.attachment(fileName);
         ffmpeg.stdout.pipe(res);
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+});
+
+router.get("/effects", (req, res) => {
+    try {
+        res.send(EFFECTS_ARRAY.map((el) => el.name));
     } catch (err) {
         console.error(err);
         res.sendStatus(500);

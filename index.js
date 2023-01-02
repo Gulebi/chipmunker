@@ -1,4 +1,5 @@
 const cors = require("cors");
+const bodyParser = require("body-parser");
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
@@ -9,6 +10,9 @@ const viewsRouter = require(ROUTERS_PATH + "/viewsRouter");
 const apiRouter = require(ROUTERS_PATH + "/apiRouter");
 
 app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+
 app.use("/static", express.static(PUBLIC_PATH));
 
 app.use("/", viewsRouter);
